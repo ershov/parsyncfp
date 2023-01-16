@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="AsciiDoc 8.6.9">
+<title>parsyncfp - a parallel rsync wrapper for large data transfers</title>
+<style type="text/css">
+/* Shared CSS for AsciiDoc xhtml11 and html5 backends */
+
+/* Default font. */
+body {
+  font-family: Georgia,serif;
+}
+
+/* Title font. */
+h1, h2, h3, h4, h5, h6,
+div.title, caption.title,
+thead, p.table.header,
+#toctitle,
+#author, #revnumber, #revdate, #revremark,
+#footer {
+  font-family: Arial,Helvetica,sans-serif;
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+h5 {
+  font-size: 1.0em;
+}
+
+div.sectionbody {
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+ul > li     { color: #aaa; }
+ul > li > * { color: black; }
+
+.monospaced, code, pre {
+  font-family: "Courier New", Courier, monospace;
+  font-size: inherit;
+  color: navy;
+  padding: 0;
+  margin: 0;
+}
+pre {
+  white-space: pre-wrap;
+}
+
+#author {
+  color: #527bbd;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+#email {
+}
+#revnumber, #revdate, #revremark {
+}
+
+#footer {
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid #dddddd;
+  border-left: 4px solid #f0f0f0;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid #dddddd;
+  border-left: 5px solid #f0f0f0;
+  background: #f8f8f8;
+  padding: 0.5em;
+}
+
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 10%;
+  border-left: 5px solid #f0f0f0;
+  color: #888;
+}
+
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock > pre.content {
+  font-family: inherit;
+  font-size: inherit;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 3px solid #dddddd;
+}
+
+div.exampleblock > div.content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; vertical-align: text-bottom; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+.footnote, .footnoteref {
+  font-size: 0.8em;
+}
+
+span.footnote, span.footnoteref {
+  vertical-align: super;
+}
+
+#footnotes {
+  margin: 20px 0 20px 0;
+  padding: 7px 0 0 0;
+}
+
+#footnotes div.footnote {
+  margin: 0 0 5px 0;
+}
+
+#footnotes hr {
+  border: none;
+  border-top: 1px solid silver;
+  height: 1px;
+  text-align: left;
+  margin-left: 0;
+  width: 20%;
+  min-width: 100px;
+}
+
+div.colist td {
+  padding-right: 0.5em;
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+div.colist td img {
+  margin-top: 0.3em;
+}
+
+@media print {
+  #footer-badges { display: none; }
+}
+
+#toc {
+  margin-bottom: 2.5em;
+}
+
+#toctitle {
+  color: #527bbd;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel0, div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+
+span.aqua { color: aqua; }
+span.black { color: black; }
+span.blue { color: blue; }
+span.fuchsia { color: fuchsia; }
+span.gray { color: gray; }
+span.green { color: green; }
+span.lime { color: lime; }
+span.maroon { color: maroon; }
+span.navy { color: navy; }
+span.olive { color: olive; }
+span.purple { color: purple; }
+span.red { color: red; }
+span.silver { color: silver; }
+span.teal { color: teal; }
+span.white { color: white; }
+span.yellow { color: yellow; }
+
+span.aqua-background { background: aqua; }
+span.black-background { background: black; }
+span.blue-background { background: blue; }
+span.fuchsia-background { background: fuchsia; }
+span.gray-background { background: gray; }
+span.green-background { background: green; }
+span.lime-background { background: lime; }
+span.maroon-background { background: maroon; }
+span.navy-background { background: navy; }
+span.olive-background { background: olive; }
+span.purple-background { background: purple; }
+span.red-background { background: red; }
+span.silver-background { background: silver; }
+span.teal-background { background: teal; }
+span.white-background { background: white; }
+span.yellow-background { background: yellow; }
+
+span.big { font-size: 2em; }
+span.small { font-size: 0.6em; }
+
+span.underline { text-decoration: underline; }
+span.overline { text-decoration: overline; }
+span.line-through { text-decoration: line-through; }
+
+div.unbreakable { page-break-inside: avoid; }
+
+
+/*
+ * xhtml11 specific
+ *
+ * */
+
+div.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+/*
+ * html5 specific
+ *
+ * */
+
+table.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+thead, p.tableblock.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+p.tableblock {
+  margin-top: 0;
+}
+table.tableblock {
+  border-width: 3px;
+  border-spacing: 0px;
+  border-style: solid;
+  border-color: #527bbd;
+  border-collapse: collapse;
+}
+th.tableblock, td.tableblock {
+  border-width: 1px;
+  padding: 4px;
+  border-style: solid;
+  border-color: #527bbd;
+}
+
+table.tableblock.frame-topbot {
+  border-left-style: hidden;
+  border-right-style: hidden;
+}
+table.tableblock.frame-sides {
+  border-top-style: hidden;
+  border-bottom-style: hidden;
+}
+table.tableblock.frame-none {
+  border-style: hidden;
+}
+
+th.tableblock.halign-left, td.tableblock.halign-left {
+  text-align: left;
+}
+th.tableblock.halign-center, td.tableblock.halign-center {
+  text-align: center;
+}
+th.tableblock.halign-right, td.tableblock.halign-right {
+  text-align: right;
+}
+
+th.tableblock.valign-top, td.tableblock.valign-top {
+  vertical-align: top;
+}
+th.tableblock.valign-middle, td.tableblock.valign-middle {
+  vertical-align: middle;
+}
+th.tableblock.valign-bottom, td.tableblock.valign-bottom {
+  vertical-align: bottom;
+}
+
+
+/*
+ * manpage specific
+ *
+ * */
+
+body.manpage h1 {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  border-top: 2px solid silver;
+  border-bottom: 2px solid silver;
+}
+body.manpage h2 {
+  border-style: none;
+}
+body.manpage div.sectionbody {
+  margin-left: 3em;
+}
+
+@media print {
+  body.manpage div#toc { display: none; }
+}
+
+
+@media screen {
+  body {
+    max-width: 50em; /* approximately 80 characters wide */
+    margin-left: 16em;
+  }
+
+  #toc {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 13em;
+    padding: 0.5em;
+    padding-bottom: 1.5em;
+    margin: 0;
+    overflow: auto;
+    border-right: 3px solid #f8f8f8;
+    background-color: white;
+  }
+
+  #toc .toclevel1 {
+    margin-top: 0.5em;
+  }
+
+  #toc .toclevel2 {
+    margin-top: 0.25em;
+    display: list-item;
+    color: #aaaaaa;
+  }
+
+  #toctitle {
+    margin-top: 0.5em;
+  }
+}
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+var asciidoc = {  // Namespace.
+
+/////////////////////////////////////////////////////////////////////
+// Table Of Contents generator
+/////////////////////////////////////////////////////////////////////
+
+/* Author: Mihai Bazon, September 2002
+ * http://students.infoiasi.ro/~mishoo
+ *
+ * Table Of Content generator
+ * Version: 0.4
+ *
+ * Feel free to use this script under the terms of the GNU General Public
+ * License, as long as you do not remove or alter this notice.
+ */
+
+ /* modified by Troy D. Hanson, September 2006. License: GPL */
+ /* modified by Stuart Rackham, 2006, 2009. License: GPL */
+
+// toclevels = 1..4.
+toc: function (toclevels) {
+
+  function getText(el) {
+    var text = "";
+    for (var i = el.firstChild; i != null; i = i.nextSibling) {
+      if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
+        text += i.data;
+      else if (i.firstChild != null)
+        text += getText(i);
+    }
+    return text;
+  }
+
+  function TocEntry(el, text, toclevel) {
+    this.element = el;
+    this.text = text;
+    this.toclevel = toclevel;
+  }
+
+  function tocEntries(el, toclevels) {
+    var result = new Array;
+    var re = new RegExp('[hH]([1-'+(toclevels+1)+'])');
+    // Function that scans the DOM tree for header elements (the DOM2
+    // nodeIterator API would be a better technique but not supported by all
+    // browsers).
+    var iterate = function (el) {
+      for (var i = el.firstChild; i != null; i = i.nextSibling) {
+        if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
+          var mo = re.exec(i.tagName);
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
+            result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
+          iterate(i);
+        }
+      }
+    }
+    iterate(el);
+    return result;
+  }
+
+  var toc = document.getElementById("toc");
+  if (!toc) {
+    return;
+  }
+
+  // Delete existing TOC entries in case we're reloading the TOC.
+  var tocEntriesToRemove = [];
+  var i;
+  for (i = 0; i < toc.childNodes.length; i++) {
+    var entry = toc.childNodes[i];
+    if (entry.nodeName.toLowerCase() == 'div'
+     && entry.getAttribute("class")
+     && entry.getAttribute("class").match(/^toclevel/))
+      tocEntriesToRemove.push(entry);
+  }
+  for (i = 0; i < tocEntriesToRemove.length; i++) {
+    toc.removeChild(tocEntriesToRemove[i]);
+  }
+
+  // Rebuild TOC entries.
+  var entries = tocEntries(document.getElementById("content"), toclevels);
+  for (var i = 0; i < entries.length; ++i) {
+    var entry = entries[i];
+    if (entry.element.id == "")
+      entry.element.id = "_toc_" + i;
+    var a = document.createElement("a");
+    a.href = "#" + entry.element.id;
+    a.appendChild(document.createTextNode(entry.text));
+    var div = document.createElement("div");
+    div.appendChild(a);
+    div.className = "toclevel" + entry.toclevel;
+    toc.appendChild(div);
+  }
+  if (entries.length == 0)
+    toc.parentNode.removeChild(toc);
+},
+
+
+/////////////////////////////////////////////////////////////////////
+// Footnotes generator
+/////////////////////////////////////////////////////////////////////
+
+/* Based on footnote generation code from:
+ * http://www.brandspankingnew.net/archive/2005/07/format_footnote.html
+ */
+
+footnotes: function () {
+  // Delete existing footnote entries in case we're reloading the footnodes.
+  var i;
+  var noteholder = document.getElementById("footnotes");
+  if (!noteholder) {
+    return;
+  }
+  var entriesToRemove = [];
+  for (i = 0; i < noteholder.childNodes.length; i++) {
+    var entry = noteholder.childNodes[i];
+    if (entry.nodeName.toLowerCase() == 'div' && entry.getAttribute("class") == "footnote")
+      entriesToRemove.push(entry);
+  }
+  for (i = 0; i < entriesToRemove.length; i++) {
+    noteholder.removeChild(entriesToRemove[i]);
+  }
+
+  // Rebuild footnote entries.
+  var cont = document.getElementById("content");
+  var spans = cont.getElementsByTagName("span");
+  var refs = {};
+  var n = 0;
+  for (i=0; i<spans.length; i++) {
+    if (spans[i].className == "footnote") {
+      n++;
+      var note = spans[i].getAttribute("data-note");
+      if (!note) {
+        // Use [\s\S] in place of . so multi-line matches work.
+        // Because JavaScript has no s (dotall) regex flag.
+        note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+        spans[i].innerHTML =
+          "[<a id='_footnoteref_" + n + "' href='index.html#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+        spans[i].setAttribute("data-note", note);
+      }
+      noteholder.innerHTML +=
+        "<div class='footnote' id='_footnote_" + n + "'>" +
+        "<a href='index.html#_footnoteref_" + n + "' title='Return to text'>" +
+        n + "</a>. " + note + "</div>";
+      var id =spans[i].getAttribute("id");
+      if (id != null) refs["#"+id] = n;
+    }
+  }
+  if (n == 0)
+    noteholder.parentNode.removeChild(noteholder);
+  else {
+    // Process footnoterefs.
+    for (i=0; i<spans.length; i++) {
+      if (spans[i].className == "footnoteref") {
+        var href = spans[i].getElementsByTagName("a")[0].getAttribute("href");
+        href = href.match(/#.*/)[0];  // Because IE return full URL.
+        n = refs[href];
+        spans[i].innerHTML =
+          "[<a href='index.html#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+      }
+    }
+  }
+},
+
+install: function(toclevels) {
+  var timerId;
+
+  function reinstall() {
+    asciidoc.footnotes();
+    if (toclevels) {
+      asciidoc.toc(toclevels);
+    }
+  }
+
+  function reinstallAndRemoveTimer() {
+    clearInterval(timerId);
+    reinstall();
+  }
+
+  timerId = setInterval(reinstall, 500);
+  if (document.addEventListener)
+    document.addEventListener("DOMContentLoaded", reinstallAndRemoveTimer, false);
+  else
+    window.onload = reinstallAndRemoveTimer;
+}
+
+}
+asciidoc.install(3);
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>parsyncfp - a parallel rsync wrapper for large data transfers</h1>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph"><p>by Harry Mangalam &lt;<a href="mailto:hjmangalam@gmail.com">hjmangalam@gmail.com</a>&gt;
+v1.57, Mar 20, 2019</p></div>
+<div class="paragraph"><div class="title">A parsyncfp of ~50TB data over an IB network</div><p>The image below is a screenshot of a <a href="http://moo.nac.uci.edu/&#126;hjm/hpc/profilemyjobs/profilemyjobs.html">profilemyjobs</a> profiling of a 16-way backup of about 50TB of data from one BeeGFS filesystem to another over QDR Infiniband (mixed RDMA and TCPoIB). Much of it was already synced, but at <sub>timepoint 800, a substantial amount was not, resulting in a combined </sub>1.4 GB/s transfer.</p></div>
+<div class="paragraph"><p><span class="image">
+<img src="parsyncfp-profile-stevesmall.png" alt="HPC SS rsync backup">
+</span></p></div>
+<div class="paragraph"><div class="title">The interface of parsyncfp, showing RDMA bytes sent</div><p><span class="image">
+<img src="parsyncfp-screenshot-rdma.bytes.sent.png" alt="RDMA bytes sent">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_overview">1. Overview</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><a href="http://rsync.samba.org">rsync</a> is a fabulous data mover.  Possibly more bytes have been moved
+(or have been prevented from being moved) by rsync than by any other application.</p></div>
+<div class="paragraph"><p>So what&#8217;s not to love?</p></div>
+<div class="paragraph"><p>For transferring large, deep file trees, rsync will pause while it generates lists of files to process.
+Since Version 3, it does this pretty fast, but on sluggish filesystems, it can take hours or even days
+before it will start to actually exchange rsync data.</p></div>
+<div class="paragraph"><p>Second, due to various bottlenecks, rsync will tend to use less than the
+available bandwidth on high speed networks.  Starting multiple instances of rsync
+can improve this significantly.  However, on such transfers, it is also easy to overload
+the available bandwidth, so it would be nice to both limit the bandwidth used if
+necessary and also to limit the load on the system.</p></div>
+<div class="paragraph"><p>parsyncfp tries to satisfy all these conditions and more by:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+using <a href="http://goo.gl/K1WwtD">the fpart file partitioner</a> which can produce lists of files very rapidly
+</p>
+</li>
+<li>
+<p>
+allowing re-use of the cache files so generated.
+</p>
+</li>
+<li>
+<p>
+doing crude loadbalancing of the number of active rsyncs, suspending and unsuspending
+the processes as necessary.
+</p>
+</li>
+<li>
+<p>
+using rsync&#8217;s own bandwidth limiter (--bwlimit) to throttle the total bandwidth.
+</p>
+</li>
+<li>
+<p>
+using rsync&#8217;s own vast option selection is available as a pass-thru (tho limited to
+those compatible with the <em>--files-from</em> option).
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>As a warning, the main use case for parsyncfp is really only very large data transfers thru
+fairly fast network connections (&gt;1Gb).  Below this speed, rsync itself can saturate the connection,
+so there&#8217;s little reason to use parsyncfp and in fact the overhead of testing the existence of and starting
+more rsyncs tends to worsen its performance on small transfers to slightly less than rsync alone.</p></div>
+<div class="paragraph"><p>Beyond this introduction, parsyncfp&#8217;s internal help is about all you&#8217;ll need to
+figure out how to use it; below is what you&#8217;ll see when you type <em>parsyncfp -h</em>.
+There are probably still edge cases where parsyncfp will fail or behave oddly,
+especially with small data transfers, so I&#8217;d be happy to hear of such misbehavior or
+suggestions to improve it.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_download">2. Download</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>If you already know you want it, get the
+<a href="parsyncfp+utils.tar.gz">parsyncfp tarball here</a>
+(contains <em>parsyncfp</em> plus the <em>fpart, stats</em>, and <em>scut</em> utilities below)</p></div>
+<div class="paragraph"><p>Extract it into a dir on your $PATH and after verifying the other dependencies below,
+give it a shot.</p></div>
+<div class="paragraph"><p>It is also hosted on <a href="https://github.com/hjmangalam/parsyncfp">github</a> if you&#8217;d rather interact with the code there (and where I handle bug reports and fixes)</p></div>
+<div class="sect2">
+<h3 id="deps">2.1. Dependencies</h3>
+<div class="paragraph"><p>parsyncfp requires the following utilities to work:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<a href="https://www.kernel.org/pub/software/network/ethtool/">ethtool</a> - std Linux tool
+  for probing ethernet interfaces. <em>Install from repositories.</em>
+</p>
+</li>
+<li>
+<p>
+iwconfig - std Linux tool for probing wireless interfaces. <em>Install from repositories.</em>
+</p>
+</li>
+<li>
+<p>
+<a href="http://gael.roualland.free.fr/ifstat/">ifstat</a> - std Linux tool for extracting metrics from network interfaces. <em>Install from repositories.</em>
+</p>
+</li>
+<li>
+<p>
+<a href="http://fpart.sourceforge.net/">fpart</a> - a file partitioner that allows fast startup. <a href="fpart">Precompiled executable for 64b Linux is here.</a>
+</p>
+</li>
+<li>
+<p>
+<a href="stats">stats</a> - self-writ Perl utility for providing descriptive stats on <em>STDIN</em>
+</p>
+</li>
+<li>
+<p>
+<a href="scut">scut</a> - self-writ Perl utility like <em>cut</em> that allows regex split tokens
+</p>
+</li>
+<li>
+<p>
+many standard Linux utilities
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_parsyncfp_help">3. parsyncfp help</h2>
+<div class="sectionbody">
+<div class="literalblock">
+<div class="content monospaced">
+<pre>parsyncfp --help</pre>
+</div></div>
+<div class="paragraph"><p>or just</p></div>
+<div class="literalblock">
+<div class="content monospaced">
+<pre>parsyncfp</pre>
+</div></div>
+<div class="paragraph"><p>will dump its help pages in the <em>less</em> pager.</p></div>
+<div class="paragraph"><p>Below is what you should see:</p></div>
+<div class="paragraph"><p>(The following is a slightly HTML-spiffed version of the normal parsyncfp help.)</p></div>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>parsyncfp version 1.57
+Mar 20, 2019
+by Harry Mangalam &lt;hjmangalam@gmail.com&gt;
+
+parsyncfp is a Perl script that wraps Andrew Tridgell's miraculous
+'rsync' to provide some load balancing and parallel operation across
+network connections to increase the amount of bandwidth it can use.
+The 'fp' variant uses 'fpart' to bypass the need for a full recursive
+descent of the dir trees before the actual transfer starts.
+Do NOT try to use rsync --delete options'.  More help with '--help'
+parsyncfp is distributed under the Gnu Public License (GPL) v3.
+
+The only native rsync option that parsyncfp uses is '-a (archive).  If you
+need more, then it's up to you to provide them ALL via '--rsyncopts'.
+parsyncfp checks to see if the current system load is too heavy and tries
+to throttle the rsyncs during the run by monitoring and suspending
+/ continuing them as needed.
+
+parsyncfp uses fpart &lt;http://goo.gl/K1WwtD&gt; to create chunkfiles for rsync
+to read, bypassing the need to wait for a complete recursive scan. ie, it
+starts the transfer immediately. For large deep trees, this can be useful.
+
+It appropriates rsync's bandwidth throttle mechanism, using '--maxbw'
+as a passthru to rsync's 'bwlimit' option, but divides it by NP so
+as to keep the total bw the same as the stated limit.  It monitors and
+shows network bandwidth, but can't change the bw allocation mid-job.
+It can only suspend rsyncs until the load decreases below the cutoff.
+If you suspend parsyncfp (^Z), all rsync children will suspend as well,
+regardless of current state.
+
+Unless changed by '--interface', it assumes and monitors the routable interface.
+The transfer will use whatever interface normal routing provides, normally
+set by the name of the target.  It can also be used for non-host-based
+transfers (between mounted filesystems) but the network bandwidth continues
+to be (pointlessly) shown.
+
+[NB: Between mounted filesystems, parsyncfp sometimes works very poorly for
+reasons still mysterious.  In such cases, I recommend the fpsync tool
+contained in the fpart package above].
+
+It only works on dirs and files that originate from the current dir (or
+specified via "--startdir").  You cannot include dirs and files from
+discontinuous or higher-level dirs.  parsyncfp also does not use rsync's
+sophisticated/idiosyncratic treatment of trailing '/'s to direct where
+files vs dirs are sent; dirs are treated as dirs regardless of the
+trailing '/'.
+
+** the [.parsyncfp] files **
+The [.parsyncfp] dir contains the cache dir (fpcache), and the time-
+stamped log files, which are not NOT overwritten.
+
+
+** Odd characters in names **
+parsyncfp will refuse to transfer some oddly named files (tho it should copy
+filenames with spaces fine.  Filenames with embedded newlines, DOS EOLs,
+and some other odd chars will be recorded in the log files in the
+[.parsyncfp] dir.</pre>
+</div></div>
+<div class="sect2">
+<h3 id="_options">3.1. OPTIONS</h3>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>[i] = integer number                      [s] = "quoted string"
+[f] = floating point number               ( ) = the default if any
+
+--NP|np [i] (sqrt(#CPUs)) ..............  number of rsync processes to start
+       optimal NP depends on many vars.   Try the default and incr as needed
+--altcache|ac (~/.parsyncfp) ..... alternative cache dir for placing it on a
+                another FS or for running multiple parsyncfps simultaneously
+--startdir|sd [s] (`pwd`)  ..................  the directory it starts at(*)
+--maxbw [i] (unlimited) ...........  in KB/s max bandwidth to use (--bwlimit
+       passthru to rsync).  maxbw is the total BW to be used, NOT per rsync.
+--maxload|ml [f] (NP+2)  ..........  max system load - if loadavg &gt; maxload,
+                                            an rsync proc will sleep for 10s
+--chunksize|cs [s] (10G) .... aggregate size of files allocated to one rsync
+                      process.  Can specify in 'human' terms [100M, 50K, 1T]
+                                                   as well as integer bytes.
+--rsyncopts|ro [s]  ...  options passed to rsync as quoted string (CAREFUL!)
+         this opt triggers a pause before executing to verify the command(+)
+--interface|i [s]  ......  network interface to monitor (not use; see above)
+                                              Only SENT bytes are displayed.
+--checkperiod|cp [i] (3) ........ sets the period in seconds between updates
+--verbose|v [0-3] (2) ....sets chattiness. 3=debug; 2=normal; 1=less; 0=none
+                     This only affects verbosity post-start; warning &amp; error
+                                             messages will still be printed.
+--dispose|d [s] (l) .... what to do with the cache files. (l)eave untouched,
+                                          (c)ompress to a tarball, (d)elete.
+--email [s]  .....................  email address to send completion message
+--nowait  .............  for scripting, sleep for a few s instead of pausing
+--version  .................................  dumps version string and exits
+--help  .........................................................  this help
+
+(*) you can use globs/regexes with --startdir, but only if you're at that
+point in the dir tree. ie: if you're not in the dir where the globs can be
+expanded, then the glob will fail.  However, explicit dirs can be set from
+anywhere if given an existing startdir.
+
+(+) the '--rsyncopts' string can pass any rsync option to all the rsyncs that
+will be started.  This allows options like '-z' (compression) or '--exclude-from'
+to filter out unwanted files. Use any 'delete' options carefully tho.</pre>
+</div></div>
+</div>
+<div class="sect2">
+<h3 id="_hints_amp_workarounds">3.2. Hints &amp; Workarounds</h3>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>IMPORTANT: rsync '--delete' options will not work with '--rsyncopts' bc the
+multiple parallel rsyncs that parsyncfp launches are independent and therefore
+don't know about each other (and so cannot exchange info about what should
+be deleted or not.  Use a final 'rsync --delete' to clean up the transfer
+if that's your need.
+
+
+If you see an error related to "sh: /usr/bin/ls: Argument list too long",
+it usually means that fpart has generated a huge list of chunkfiles (10s
+of 1000s) and 'ls' has trouble processing that many.  This is usually
+due to pointing parsyncfp at a huge filesystem, with millions of files,
+with a chunksize that's too small (resulting in the above-noted too many
+chunkfiles). You can either increase the chunksize ('--chunksize=100G)
+which will result in a smaller number of chunk files to process, or split
+up the source dirs among multiple parsyncfps (which can be done using the
+'--altcache' option above).</pre>
+</div></div>
+</div>
+<div class="sect2">
+<h3 id="_examples">3.3. Examples</h3>
+<div class="sect3">
+<h4 id="_good_example_1">3.3.1. Good example 1</h4>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>% parsyncfp  --maxload=5.5 --NP=4 --chunksize=$((1024 * 1024 * 4)) \
+--startdir='/home/hjm' dir[123]  hjm@remotehost:~/backups</pre>
+</div></div>
+<div class="paragraph"><p>where:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+"--maxload=5.5" will start suspending rsync instances when the 1m system
+      load gets to 5.5 and then unsuspending them when it goes below it.
+</p>
+</li>
+<li>
+<p>
+"--NP=4" forks 4 instances of rsync
+</p>
+</li>
+<li>
+<p>
+"--chunksize=$1024 * 1024 * 4" sets the chunksize, by multiplication
+        or by explicit size: 4194304
+</p>
+</li>
+<li>
+<p>
+"--startdir=<em>/home/hjm</em>" sets the working dir of this operation to
+        <em>/home/hjm</em> and dir1 dir2 dir3 are subdirs from <em>/home/hjm</em>
+</p>
+</li>
+<li>
+<p>
+the target "hjm@remotehost:~/backups" is the same target rsync would use
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>It uses 4 instances to rsync dir1 dir2 dir3 to <a href="mailto:hjm@remotehost">hjm@remotehost</a>:~/backups</p></div>
+</div>
+<div class="sect3">
+<h4 id="_good_example_2">3.3.2. Good example 2</h4>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>% parsyncfp   --checkperiod 6  --NP 3 --interface eth0  \
+--chunksize=87682352 --rsyncopts="--exclude='[abc]*'" \
+nacs/fabio   hjm@moo:~/backups</pre>
+</div></div>
+<div class="paragraph"><p>The above command shows several options used correctly:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<em>--chunksize=87682352</em> - shows that the chunksize option can be used with explicit
+integers as well as the human specifiers (TGMK).
+</p>
+</li>
+<li>
+<p>
+<em>--rsyncopts="--exclude=\</em>[abc]*\'' - shows the correct form for excluding files
+based on regexes (note the quoting)
+</p>
+</li>
+<li>
+<p>
+<em>nacs/fabio</em> - shows that you can specify subdirs as well as top-level dirs (as
+long as the shell is positioned in the dir above, or has been specified via
+<em>--startdir</em>
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect3">
+<h4 id="_good_example_3">3.3.3. Good example 3</h4>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>% parsyncfp -v 1 --nowait --ac pfpcache1 --NP 4 --cp=5 \
+--cs=50M --ro '-az'  linux-4.8.4 moo:~/test</pre>
+</div></div>
+<div class="paragraph"><p>The above command shows:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+short version of several options (-v for --verbose, --cp for checkperiod, etc)
+</p>
+</li>
+<li>
+<p>
+shows use of --altcache (--ac pfpcache1), writing to relative dir pfpcache1
+</p>
+</li>
+<li>
+<p>
+again shows use of --rsyncopts (--ro <em>-az</em>) indicating <em>archive</em> &amp; compression'.
+</p>
+</li>
+<li>
+<p>
+includes <em>--nowait</em> to allow unattended scripting of parsyncfp
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect3">
+<h4 id="_error_example_1">3.3.4. Error example 1</h4>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>% pwd
+/home/hjm  # executing parsyncfp from here
+
+% parsyncfp --NP4  /usr/local  /media/backupdisk</pre>
+</div></div>
+<div class="paragraph"><p>why this is an error:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<em>--NP4</em> is not an option (parsyncfp will say "Unknown option: np4"
+    It should be <em>--NP=4</em> or <em>--NP 4</em>
+</p>
+</li>
+<li>
+<p>
+if you were trying to rsync <em>/usr/local</em> to <em>/media/backupdisk</em>, it will
+    fail since there is no /home/hjm/usr/local dir to use as a source.
+    This will be shown in the log files in ~/.parsync/rsync-logfile-&lt;datestamp&gt;_#
+    as a spew of "No such file or directory (2)" errors
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>The correct version of the above command is:</p></div>
+<div class="listingblock">
+<div class="content monospaced">
+<pre>% parsyncfp --NP=4  --startdir=/usr  local  /media/backupdisk</pre>
+</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr></div>
+<div id="footer">
+<div id="footer-text">
+Last updated
+ 2019-03-27 15:54:05 PDT
+</div>
+</div>
+</body>
+</html>
